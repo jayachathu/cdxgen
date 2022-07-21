@@ -869,16 +869,26 @@ const createJavaBom = async (path, options) => {
 
     // Bazel
     // Look for the BUILD file only in the root directory
+    //let bazelWorkspaceFiles = utils.getAllFiles(path, "WORKSPACE");
     let bazelFiles = utils.getAllFiles(path, "BUILD");
+    console.log("first bazel files #### " + bazelFiles.length)
+    let buildBazelFiles = utils.getAllFiles(path, "BUILD.bazel")
+    if (buildBazelFiles) {
+      bazelFiles = bazelFiles.concat(buildBazelFiles);
+    }
+    //bazelFiles = bazelFiles.push(utils.getAllFiles(path, "BUILD.bazel"));
+    console.log("second bazel files #### "+ bazelFiles.length)
     if (bazelFiles && bazelFiles.length) {
       let BAZEL_CMD = "bazel";
       if (process.env.BAZEL_HOME) {
         BAZEL_CMD = pathLib.join(process.env.BAZEL_HOME, "bin", "bazel");
       }
       for (let f of bazelFiles) {
+
+        console.log("bazel file " + f)
         const basePath = pathLib.dirname(f);
         // Invoke bazel build first
-        const bazelTarget = process.env.BAZEL_TARGET || ":all";
+        const bazelTarget = process.env.BAZEL_TARGET || "...:all";
         console.log(
           "Executing",
           BAZEL_CMD,
@@ -894,6 +904,7 @@ const createJavaBom = async (path, options) => {
           timeout: TIMEOUT_MS,
         });
         if (result.status == 1 || result.error) {
+          console.log("bazel error " + f)
           if (result.stderr) {
             console.error(result.stdout, result.stderr);
           }
@@ -919,6 +930,7 @@ const createJavaBom = async (path, options) => {
           if (stdout) {
             const cmdOutput = Buffer.from(stdout).toString();
             const dlist = utils.parseBazelSkyframe(cmdOutput);
+            console.log("depeden" + dlist.length)
             if (dlist && dlist.length) {
               pkgList = pkgList.concat(dlist);
             } else {

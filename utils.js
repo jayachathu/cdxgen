@@ -857,7 +857,7 @@ const parseBazelSkyframe = function (rawOutput) {
           let jarPathParts = jarPath.split("/");
           if (jarPathParts.length) {
             // Remove the protocol, registry url and then file name
-            jarPathParts = jarPathParts.slice(2, -1);
+            jarPathParts = jarPathParts.slice(3, -1);
             // The last part would be the version
             const version = jarPathParts[jarPathParts.length - 1];
             // Last but one would be the name
